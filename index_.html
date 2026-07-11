@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정기교육 신청</title>
+<style>
+  :root{
+    --line:#d8dde3; --line2:#eef1f4; --text:#1f2933; --sub:#6b7684;
+    --brand:#c8102e;
+    --wait:#f0f0f0;   --wait-t:#8a8a8a;
+    --open:#e3f2e8;   --open-t:#1b7a3f;
+    --close:#fde8ea;  --close-t:#b3273c;
+    --cancel:#e8e8e8; --cancel-t:#999;
+    --done:#f7f7f7;   --done-t:#bbb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f5f6f8;color:var(--text);
+       font-family:-apple-system,'Malgun Gothic','맑은 고딕',sans-serif;
+       font-size:14px;line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
+
+  h1{font-size:26px;margin:0 0 4px;font-weight:700}
+  h1 span{display:inline-block;width:4px;height:22px;background:var(--brand);
+          margin-right:10px;vertical-align:-2px;border-radius:2px}
+  .year{color:var(--sub);margin:0 0 22px;font-size:13px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
+  .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
+
+  .course{background:#fff;border:1px solid var(--line);border-radius:8px;
+          margin-bottom:16px;overflow:hidden}
+  .chead{display:flex;justify-content:space-between;align-items:center;gap:12px;
+         padding:14px 18px;border-bottom:1px solid var(--line2);
+         background:#fbfcfd;flex-wrap:wrap}
+  .cname{font-weight:700;font-size:16px}
+  .cdesc{font-size:12px;color:var(--sub);margin-top:2px}
+  .cmeta{display:flex;gap:16px;font-size:12px;color:var(--sub);white-space:nowrap}
+  .cmeta b{color:var(--text);font-weight:600}
+
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);
+        border-top:1px solid var(--line2)}
+  .mh{padding:7px 2px;text-align:center;font-size:11px;color:var(--sub);
+      background:#fafbfc;border-right:1px solid var(--line2);font-weight:600}
+  .mh:last-child{border-right:0}
+  .mc{min-height:56px;padding:6px 3px;border-right:1px solid var(--line2);
+      border-top:1px solid var(--line2);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:3px}
+  .mc:last-child{border-right:0}
+
+  .pill{width:100%;border:0;border-radius:4px;padding:5px 2px;font-size:11px;
+        font-weight:600;cursor:default;font-family:inherit;line-height:1.3}
+  .pill .rm{display:block;font-size:9px;font-weight:400;opacity:.85;margin-top:1px}
+  .st-대기  {background:var(--wait);  color:var(--wait-t)}
+  .st-접수중{background:var(--open);  color:var(--open-t);cursor:pointer}
+  .st-접수중:hover{background:#cfe9d9}
+  .st-마감  {background:var(--close); color:var(--close-t)}
+  .st-폐강  {background:var(--cancel);color:var(--cancel-t);
+             text-decoration:line-through}
+  .st-종료  {background:var(--done);  color:var(--done-t)}
+
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;
+      align-items:flex-start;justify-content:center;padding:24px 12px;
+      overflow-y:auto;z-index:50}
+  .ov.on{display:flex}
+  .modal{background:#fff;border-radius:10px;width:100%;max-width:580px;padding:24px}
+  .modal h2{margin:0 0 14px;font-size:19px}
+
+  .box{background:#f7f9fa;border:1px solid var(--line2);border-radius:6px;
+       padding:12px 14px;margin-bottom:18px;font-size:13px}
+  .box div{display:flex;justify-content:space-between;padding:3px 0}
+  .box .k{color:var(--sub)}
+  .box .v{font-weight:600}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tab{flex:1;padding:9px;border:1px solid var(--line);background:#fff;
+       border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;
+       font-weight:600;color:var(--sub)}
+  .tab.on{border-color:var(--brand);color:var(--brand);background:#fff5f6}
+
+  label{display:block;font-size:12px;font-weight:600;margin:0 0 5px}
+  label i{color:var(--brand);font-style:normal}
+  input,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);
+                 border-radius:6px;font-family:inherit;font-size:13px;
+                 margin-bottom:12px;background:#fff}
+  input:focus,textarea:focus{outline:0;border-color:var(--brand)}
+  textarea{resize:vertical;min-height:60px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .mem{display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:8px;
+       align-items:start;margin-bottom:8px}
+  .mem input{margin-bottom:0}
+  .del{border:1px solid var(--line);background:#fff;border-radius:6px;
+       width:34px;height:36px;cursor:pointer;color:#c33;font-size:16px;line-height:1}
+  .add{width:100%;padding:9px;border:1px dashed var(--line);background:#fafbfc;
+       border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;
+       color:var(--sub);margin-bottom:14px}
+  .cnt{font-size:12px;color:var(--sub);margin-bottom:8px}
+
+  /* 개인정보 동의 */
+  .pv{border:1px solid var(--line);border-radius:6px;margin:6px 0 14px;
+      overflow:hidden}
+  .pv-h{padding:10px 12px;background:#fafbfc;border-bottom:1px solid var(--line2);
+        font-size:12px;font-weight:700;display:flex;justify-content:space-between;
+        align-items:center;cursor:pointer}
+  .pv-h .tg{font-weight:400;color:var(--sub);font-size:11px}
+  .pv-b{max-height:0;overflow:hidden;transition:max-height .25s;
+        font-size:11.5px;color:var(--sub);line-height:1.75}
+  .pv-b.on{max-height:400px;overflow-y:auto}
+  .pv-b .in{padding:12px}
+  .pv-b table{width:100%;border-collapse:collapse;margin:6px 0}
+  .pv-b th,.pv-b td{border:1px solid var(--line2);padding:5px 7px;
+                    text-align:left;font-weight:400}
+  .pv-b th{background:#fafbfc;font-weight:600;color:var(--text);width:32%}
+  .pv-f{padding:10px 12px;border-top:1px solid var(--line2);background:#fff}
+  .chk{display:flex;align-items:flex-start;gap:8px;cursor:pointer;
+       font-size:12.5px;font-weight:600;margin:0}
+  .chk input{width:auto;margin:2px 0 0;flex-shrink:0}
+  .chk.no{color:var(--brand)}
+
+  .hp{position:absolute!important;left:-9999px!important;opacity:0!important;
+      height:0!important;width:0!important}
+
+  .btns{display:flex;gap:10px;margin-top:6px}
+  .btn{flex:1;padding:12px;border:0;border-radius:6px;cursor:pointer;
+       font-family:inherit;font-size:14px;font-weight:700}
+  .btn.g{background:#eef0f3;color:var(--sub)}
+  .btn.p{background:var(--brand);color:#fff}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+
+  .msg{padding:10px 12px;border-radius:6px;font-size:13px;margin-bottom:12px;
+       display:none}
+  .msg.err{display:block;background:#fdeaec;color:#b3273c}
+  .msg.ok {display:block;background:#e6f5ec;color:#1b7a3f}
+
+  .foot{margin-top:24px;font-size:12px;color:var(--sub);line-height:1.9}
+  .load{text-align:center;padding:60px;color:var(--sub)}
+
+  @media(max-width:820px){
+    .grid{grid-template-columns:repeat(6,1fr)}
+    .cmeta{width:100%}
+    .row2,.mem{grid-template-columns:1fr}
+    .del{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span></span>정기교육 신청</h1>
+  <p class="year" id="yr"></p>
+
+  <div class="legend">
+    <div class="lg"><div class="sw" style="background:var(--wait)"></div>접수 대기</div>
+    <div class="lg"><div class="sw" style="background:var(--open)"></div>신청 가능</div>
+    <div class="lg"><div class="sw" style="background:var(--close)"></div>마감</div>
+    <div class="lg"><div class="sw" style="background:var(--cancel)"></div>폐강</div>
+    <div class="lg"><div class="sw" style="background:var(--done)"></div>종료</div>
+  </div>
+
+  <div id="list"><div class="load">교육 일정을 불러오는 중…</div></div>
+
+  <div class="foot">
+    · 교육 접수는 교육 시작일 <b>6개월 전</b>부터 <b>3일 전</b>까지 가능합니다.<br>
+    · 정원이 마감되면 자동으로 신청이 종료됩니다.<br>
+    · 신청 후 <b>접수확인 메일</b>이 발송되며, 담당자 검토 후 <b>확정 메일</b>이 별도 발송됩니다.<br>
+    · 단체 신청 시 참석자 전원의 인적사항을 입력해 주십시오.
+  </div>
+</div>
+
+<!-- ===== 모달 ===== -->
+<div class="ov" id="ov">
+  <div class="modal">
+    <h2>교육 신청</h2>
+
+    <div class="box">
+      <div><span class="k">과정명</span><span class="v" id="m-course"></span></div>
+      <div><span class="k">교육일자</span><span class="v" id="m-date"></span></div>
+      <div><span class="k">교육비</span><span class="v" id="m-fee"></span></div>
+      <div><span class="k">잔여석</span><span class="v" id="m-remain"></span></div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="tabs">
+      <button class="tab on" data-t="single">개인 신청</button>
+      <button class="tab"    data-t="group">단체 신청</button>
+    </div>
+
+    <label>대표자명 <i>*</i></label>
+    <input id="f-name" placeholder="홍길동" autocomplete="name">
+
+    <label>회사명 <i>*</i></label>
+    <input id="f-company" placeholder="○○전기(주)" autocomplete="organization">
+
+    <div class="row2">
+      <div>
+        <label>연락처 <i>*</i></label>
+        <input id="f-phone" placeholder="010-1234-5678" autocomplete="tel">
+      </div>
+      <div>
+        <label>이메일 <i>*</i></label>
+        <input id="f-email" type="email" placeholder="name@company.com" autocomplete="email">
+      </div>
+    </div>
+
+    <div id="grp" style="display:none">
+      <label style="margin-top:6px">참석자 명단 <i>*</i></label>
+      <div class="cnt" id="cnt">총 0명</div>
+      <div id="mems"></div>
+      <button class="add" id="add" type="button">+ 참석자 추가</button>
+    </div>
+
+    <label>요청사항</label>
+    <textarea id="f-memo" placeholder="주차 필요, 식사 알레르기 등"></textarea>
+
+    <!-- 봇 방어: 허니팟 (사람에겐 안 보임) -->
+    <input class="hp" id="website" name="website" tabindex="-1" autocomplete="off"
+           aria-hidden="true">
+
+    <!-- 개인정보 동의 -->
+    <div class="pv">
+      <div class="pv-h" id="pv-h">
+        <span>개인정보 수집 · 이용 동의 <i style="color:var(--brand);font-style:normal">*</i></span>
+        <span class="tg" id="pv-tg">내용 보기 ▾</span>
+      </div>
+      <div class="pv-b" id="pv-b">
+        <div class="in" id="pv-txt"></div>
+      </div>
+      <div class="pv-f">
+        <label class="chk">
+          <input type="checkbox" id="agree">
+          <span>위 개인정보 수집·이용에 <b>동의합니다.</b>
+            <span style="display:block;font-weight:400;color:var(--sub);
+                         font-size:11px;margin-top:2px">
+              동의를 거부하실 수 있으나, 거부 시 교육 신청이 불가합니다.
+            </span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="btn g" id="cancel" type="button">취소</button>
+      <button class="btn p" id="submit" type="button">신청하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ★★★ Apps Script 웹앱 배포 URL 을 여기에 붙여넣으세요 ★★★ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzmtTSPuL0vpn0luZT0P3S48RVtIgNmYqZhyMTyImrydOpeFS0LhF6qQ21aikjpQsnp/exec';
+
+const $ = function(s){ return document.querySelector(s); };
+let cur = null, mode = 'single', PV = null;
+
+/* ---------- 로드 ---------- */
+async function load(){
+  try{
+    const r = await fetch(API_URL);
+    const d = await r.json();
+    if(!d.ok) throw new Error(d.msg);
+    $('#yr').textContent = d.year + '년 정기교육 일정표';
+    PV = d.privacy;
+    buildPrivacy();
+    render(d.courses);
+  }catch(e){
+    $('#list').innerHTML =
+      '<div class="load">일정을 불러오지 못했습니다.<br><small>' + e + '</small></div>';
+  }
+}
+
+function buildPrivacy(){
+  if(!PV) return;
+  $('#pv-txt').innerHTML =
+    '<b style="color:var(--text)">' + PV.org + '</b>은(는) 교육 신청 접수 및 운영을 위해 ' +
+    '아래와 같이 개인정보를 수집·이용합니다.' +
+    '<table>' +
+      '<tr><th>수집 목적</th><td>교육 신청 접수, 수강 확정 안내, 교육 운영 및 수료 관리</td></tr>' +
+      '<tr><th>수집 항목</th><td>[필수] 성명, 회사명, 연락처, 이메일<br>' +
+        '[단체신청 시] 참석자 성명, 직급/부서, 이메일<br>' +
+        '[선택] 요청사항</td></tr>' +
+      '<tr><th>보유·이용 기간</th><td><b style="color:var(--brand)">교육 종료 후 ' +
+        PV.retention + '일</b><br>' +
+        '보유기간 경과 시 지체 없이 파기됩니다.</td></tr>' +
+      '<tr><th>제3자 제공</th><td>제공하지 않습니다.</td></tr>' +
+      '<tr><th>처리 위탁</th><td>Google LLC (데이터 보관 · 메일 발송)</td></tr>' +
+      '<tr><th>보호책임자</th><td>' + PV.manager + ' / ' + PV.tel + '</td></tr>' +
+    '</table>' +
+    '<b style="color:var(--text)">[정보주체의 권리]</b><br>' +
+    '신청자는 언제든지 본인의 개인정보에 대한 열람·정정·삭제·처리정지를 ' +
+    '요구할 수 있으며, 접수확인 메일에 회신하여 요청하실 수 있습니다. ' +
+    '요청 시 보유기간 경과 전이라도 즉시 파기됩니다.';
+}
+
+function won(n){ return '₩' + Number(n).toLocaleString('ko-KR'); }
+function md(s){ return s.slice(5).replace('-','/'); }
+
+function render(courses){
+  const el = $('#list');
+  el.innerHTML = '';
+
+  courses.forEach(function(c){
+    const card = document.createElement('div');
+    card.className = 'course';
+
+    let mh = '';
+    for(let i=1;i<=12;i++) mh += '<div class="mh">' + i + '월</div>';
+
+    card.innerHTML =
+      '<div class="chead">' +
+        '<div>' +
+          '<div class="cname">' + c.name + '</div>' +
+          (c.desc ? '<div class="cdesc">' + c.desc + '</div>' : '') +
+        '</div>' +
+        '<div class="cmeta">' +
+          '<span>교육기간 <b>' + c.days + '일</b></span>' +
+          '<span>정원 <b>' + c.capacity + '명</b></span>' +
+          '<span>교육비 <b>' + won(c.fee) + '</b></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="grid">' + mh + '</div>' +
+      '<div class="grid cells"></div>';
+
+    const cells = card.querySelector('.cells');
+    for(let m=1;m<=12;m++){
+      const box = document.createElement('div');
+      box.className = 'mc';
+
+      c.sessions.filter(function(s){ return s.month === m; }).forEach(function(s){
+        const b = document.createElement('button');
+        b.className = 'pill st-' + s.status;
+        const label = md(s.start) + '~' + s.end.slice(8);
+        b.innerHTML = (s.status === '접수중')
+          ? label + '<span class="rm">잔여 ' + s.remain + '석</span>'
+          : label + '<span class="rm">' + s.status + '</span>';
+        if(s.status === '접수중') b.onclick = function(){ open(c, s); };
+        box.appendChild(b);
+      });
+      cells.appendChild(box);
+    }
+    el.appendChild(card);
+  });
+}
+
+/* ---------- 모달 ---------- */
+function open(c, s){
+  cur = {course:c, sess:s, loadedAt:Date.now()};
+  $('#m-course').textContent = c.name;
+  $('#m-date').textContent   = s.start + ' ~ ' + s.end;
+  $('#m-fee').textContent    = won(c.fee) + ' (1인, VAT포함)';
+  $('#m-remain').textContent = s.remain + '석 / ' + s.capacity + '석';
+  reset();
+  $('#ov').classList.add('on');
+}
+function close(){ $('#ov').classList.remove('on'); }
+
+function reset(){
+  ['#f-name','#f-company','#f-phone','#f-email','#f-memo','#website']
+    .forEach(function(i){ $(i).value = ''; });
+  $('#agree').checked = false;
+  $('#msg').className = 'msg';
+  $('#mems').innerHTML = '';
+  $('#pv-b').classList.remove('on');
+  $('#pv-tg').textContent = '내용 보기 ▾';
+  $('#submit').disabled = false;
+  $('#submit').textContent = '신청하기';
+  setMode('single');
+}
+
+function setMode(t){
+  mode = t;
+  document.querySelectorAll('.tab').forEach(function(b){
+    b.classList.toggle('on', b.dataset.t === t);
+  });
+  $('#grp').style.display = (t === 'group') ? 'block' : 'none';
+  if(t === 'group' && !$('#mems').children.length){ addMem(); addMem(); }
+  count();
+}
+
+function addMem(){
+  const cap = cur ? cur.sess.remain : 99;
+  if($('#mems').children.length >= cap){
+    alert('잔여석(' + cap + '석)을 초과할 수 없습니다.');
+    return;
+  }
+  const d = document.createElement('div');
+  d.className = 'mem';
+  d.innerHTML =
+    '<input class="m-name"  placeholder="성명 *">' +
+    '<input class="m-dept"  placeholder="직급/부서">' +
+    '<input class="m-email" placeholder="이메일">' +
+    '<button class="del" type="button">×</button>';
+  d.querySelector('.del').onclick = function(){ d.remove(); count(); };
+  $('#mems').appendChild(d);
+  count();
+}
+function count(){
+  $('#cnt').textContent = '총 ' + $('#mems').children.length + '명';
+}
+
+function err(m){
+  const e = $('#msg');
+  e.className = 'msg err';
+  e.textContent = m;
+  e.scrollIntoView({block:'nearest'});
+}
+
+/* ---------- 제출 ---------- */
+async function submit(){
+  const name    = $('#f-name').value.trim();
+  const company = $('#f-company').value.trim();
+  const phone   = $('#f-phone').value.trim();
+  const email   = $('#f-email').value.trim();
+  const memo    = $('#f-memo').value.trim();
+
+  if(!name || !company || !phone || !email)
+    return err('필수 항목(*)을 모두 입력해 주세요.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email))
+    return err('이메일 형식이 올바르지 않습니다.');
+  if(!/^[\d\-+() ]{9,20}$/.test(phone))
+    return err('연락처를 숫자와 하이픈으로 입력해 주세요.');
+  if(!$('#agree').checked){
+    $('#pv-b').classList.add('on');
+    $('#pv-tg').textContent = '접기 ▴';
+    return err('개인정보 수집·이용에 동의해 주세요.');
+  }
+
+  let members = [];
+  if(mode === 'group'){
+    members = Array.prototype.slice.call(document.querySelectorAll('.mem'))
+      .map(function(d){
+        return {
+          name : d.querySelector('.m-name').value.trim(),
+          dept : d.querySelector('.m-dept').value.trim(),
+          email: d.querySelector('.m-email').value.trim()
+        };
+      }).filter(function(m){ return m.name; });
+
+    if(!members.length) return err('참석자를 1명 이상 입력해 주세요.');
+    if(members.length > cur.sess.remain)
+      return err('잔여석은 ' + cur.sess.remain + '석입니다. (신청 ' + members.length + '명)');
+  }
+
+  const btn = $('#submit');
+  btn.disabled = true;
+  btn.textContent = '접수 중…';
+  $('#msg').className = 'msg';
+
+  try{
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        sessionId: cur.sess.id,
+        type     : mode,
+        name: name, company: company, phone: phone, email: email, memo: memo,
+        members  : members,
+        agree    : true,
+        loadedAt : cur.loadedAt,          // 봇 방어: 체류시간
+        website  : $('#website').value    // 봇 방어: 허니팟
+      })
+    });
+    const d = await r.json();
+
+    if(!d.ok){
+      btn.disabled = false;
+      btn.textContent = '신청하기';
+      return err(d.msg);
+    }
+
+    const e = $('#msg');
+    e.className = 'msg ok';
+    e.textContent = '접수 완료 (접수번호 ' + d.rcpNo + '). 확인 메일을 발송했습니다.';
+    btn.textContent = '접수 완료';
+    setTimeout(function(){ close(); load(); }, 2400);
+
+  }catch(ex){
+    btn.disabled = false;
+    btn.textContent = '신청하기';
+    err('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+  }
+}
+
+/* ---------- 이벤트 ---------- */
+document.querySelectorAll('.tab').forEach(function(b){
+  b.onclick = function(){ setMode(b.dataset.t); };
+});
+$('#add').onclick    = addMem;
+$('#cancel').onclick = close;
+$('#submit').onclick = submit;
+$('#ov').onclick     = function(e){ if(e.target.id === 'ov') close(); };
+document.onkeydown   = function(e){ if(e.key === 'Escape') close(); };
+
+$('#pv-h').onclick = function(){
+  const b = $('#pv-b');
+  b.classList.toggle('on');
+  $('#pv-tg').textContent = b.classList.contains('on') ? '접기 ▴' : '내용 보기 ▾';
+};
+
+load();
+</script>
+</body>
+</html>
