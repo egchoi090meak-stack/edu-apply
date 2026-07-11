@@ -260,7 +260,7 @@ async function load(){
     const r = await fetch(API_URL);
     const d = await r.json();
     if(!d.ok) throw new Error(d.msg);
-    $('#yr').textContent = d.year + '년 정기교육 일정표';
+    $('#yr').textContent = '경기과학기술대학교 교육장 · ' + d.year + '년 정기교육 일정표';
     PV = d.privacy;
     buildPrivacy();
     render(d.courses);
