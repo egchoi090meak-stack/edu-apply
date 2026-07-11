@@ -59,6 +59,31 @@
   .cmeta{display:flex;gap:16px;font-size:12px;color:var(--sub);white-space:nowrap}
   .cmeta b{color:var(--text);font-weight:600}
 
+  /* 커리큘럼 토글 */
+  .cname-btn{background:none;border:0;padding:0;font:inherit;color:inherit;
+             cursor:pointer;text-align:left;display:flex;align-items:center;gap:7px}
+  .cname-btn:hover .cname{color:var(--brand)}
+  .cname-btn .arw{font-size:10px;color:var(--sub);transition:transform .2s;
+                  flex-shrink:0}
+  .cname-btn.on .arw{transform:rotate(90deg);color:var(--brand)}
+  .cur-tag{font-size:10px;font-weight:600;color:var(--sub);
+           border:1px solid var(--line);border-radius:10px;padding:1px 7px;
+           flex-shrink:0}
+
+  .cur{max-height:0;overflow:hidden;transition:max-height .3s ease;
+       background:#fafbfc;border-top:1px solid transparent}
+  .cur.on{max-height:1200px;border-top-color:var(--line2)}
+  .cur-in{padding:16px 18px}
+  .cur-h{font-size:11px;font-weight:700;color:var(--sub);
+         letter-spacing:.5px;margin-bottom:10px}
+  .day{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line2)}
+  .day:last-child{border-bottom:0;padding-bottom:0}
+  .day-n{flex-shrink:0;width:52px;height:24px;border-radius:4px;
+         background:var(--brand);color:#fff;font-size:11px;font-weight:700;
+         display:flex;align-items:center;justify-content:center}
+  .day-t{font-weight:600;font-size:13.5px;margin-bottom:3px}
+  .day-b{font-size:12.5px;color:var(--sub);line-height:1.6}
+
   .grid{display:grid;grid-template-columns:repeat(12,1fr);
         border-top:1px solid var(--line2)}
   .mh{padding:7px 2px;text-align:center;font-size:11px;color:var(--sub);
@@ -299,7 +324,7 @@
 
 <script>
 /* ★★★ Apps Script 웹앱 배포 URL 을 여기에 붙여넣으세요 ★★★ */
-const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyDoDsmGNik2MJLu0LDSRxk39lZNb-5yoUu2LmangMwKm9dQJDFAqxBeHRuzhweJ9ha/exec';
 
 const $ = function(s){ return document.querySelector(s); };
 let cur = null, mode = 'single', PV = null;
@@ -349,6 +374,11 @@ function buildPrivacy(){
 function won(n){ return '₩' + Number(n).toLocaleString('ko-KR'); }
 function md(s){ return s.slice(5).replace('-','/'); }
 
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function render(courses){
   const el = $('#list');
   el.innerHTML = '';
@@ -360,20 +390,64 @@ function render(courses){
     let mh = '';
     for(let i=1;i<=12;i++) mh += '<div class="mh">' + i + '월</div>';
 
+    const cur  = c.curriculum || [];
+    const has  = cur.length > 0;
+
+    // 커리큘럼 내용
+    let curHtml = '';
+    if(has){
+      curHtml =
+        '<div class="cur-in">' +
+          '<div class="cur-h">교육 커리큘럼</div>' +
+          cur.map(function(d){
+            return '<div class="day">' +
+                     '<div class="day-n">' + d.day + '일차</div>' +
+                     '<div>' +
+                       '<div class="day-t">' + esc(d.title) + '</div>' +
+                       (d.body ? '<div class="day-b">' + esc(d.body) + '</div>' : '') +
+                     '</div>' +
+                   '</div>';
+          }).join('') +
+        '</div>';
+    }
+
+    // 과정명 (커리큘럼 있으면 클릭 가능)
+    const titleHtml = has
+      ? '<button class="cname-btn" type="button">' +
+          '<span class="arw">▶</span>' +
+          '<span>' +
+            '<span class="cname">' + esc(c.name) + '</span>' +
+            (c.desc ? '<div class="cdesc">' + esc(c.desc) + '</div>' : '') +
+          '</span>' +
+          '<span class="cur-tag">커리큘럼</span>' +
+        '</button>'
+      : '<div>' +
+          '<div class="cname">' + esc(c.name) + '</div>' +
+          (c.desc ? '<div class="cdesc">' + esc(c.desc) + '</div>' : '') +
+        '</div>';
+
     card.innerHTML =
       '<div class="chead">' +
-        '<div>' +
-          '<div class="cname">' + c.name + '</div>' +
-          (c.desc ? '<div class="cdesc">' + c.desc + '</div>' : '') +
-        '</div>' +
+        titleHtml +
         '<div class="cmeta">' +
           '<span>교육기간 <b>' + c.days + '일</b></span>' +
           '<span>정원 <b>' + c.capacity + '명</b></span>' +
           '<span>교육비 <b>' + won(c.fee) + '</b></span>' +
         '</div>' +
       '</div>' +
+      '<div class="cur">' + curHtml + '</div>' +
       '<div class="grid">' + mh + '</div>' +
       '<div class="grid cells"></div>';
+
+    // 커리큘럼 토글
+    if(has){
+      const btn = card.querySelector('.cname-btn');
+      const pan = card.querySelector('.cur');
+      btn.onclick = function(){
+        btn.classList.toggle('on');
+        pan.classList.toggle('on');
+      };
+    }
 
     const cells = card.querySelector('.cells');
     for(let m=1;m<=12;m++){
