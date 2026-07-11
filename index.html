@@ -18,12 +18,32 @@
   body{margin:0;background:#f5f6f8;color:var(--text);
        font-family:-apple-system,'Malgun Gothic','맑은 고딕',sans-serif;
        font-size:14px;line-height:1.55}
-  .wrap{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
 
-  h1{font-size:26px;margin:0 0 4px;font-weight:700}
-  h1 span{display:inline-block;width:4px;height:22px;background:var(--brand);
+  /* ===== 상단 헤더 바 ===== */
+  .topbar{background:#fff;border-bottom:1px solid var(--line);
+          box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .topbar-in{max-width:1180px;margin:0 auto;padding:16px;
+             display:flex;align-items:center;justify-content:space-between;
+             gap:16px;flex-wrap:wrap}
+  .logos{display:flex;align-items:center;gap:16px}
+  .logos img{height:42px;width:auto;display:block}
+  .logo-div{width:1px;height:30px;background:var(--line)}
+  /* 이미지 없을 때 대체 텍스트 */
+  .logo-txt{font-weight:800;font-size:15px;letter-spacing:-.3px;
+            color:var(--text);white-space:nowrap}
+  .logo-txt.red{color:var(--brand)}
+  .topbar-r{font-size:12px;color:var(--sub);text-align:right;line-height:1.7}
+  .topbar-r b{color:var(--text);font-weight:600}
+
+  /* ===== 페이지 타이틀 ===== */
+  .hero{background:#fff;border-bottom:1px solid var(--line2)}
+  .hero-in{max-width:1180px;margin:0 auto;padding:26px 16px 24px}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
+
+  h1{font-size:23px;margin:0 0 4px;font-weight:700;letter-spacing:-.4px}
+  h1 span{display:inline-block;width:4px;height:20px;background:var(--brand);
           margin-right:10px;vertical-align:-2px;border-radius:2px}
-  .year{color:var(--sub);margin:0 0 22px;font-size:13px}
+  .year{color:var(--sub);margin:0;font-size:13px}
 
   .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
   .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
@@ -142,14 +162,42 @@
     .cmeta{width:100%}
     .row2,.mem{grid-template-columns:1fr}
     .del{width:100%}
+    .topbar-in{flex-direction:column;align-items:flex-start;gap:10px}
+    .topbar-r{text-align:left}
+    .logos img{height:34px}
+    h1{font-size:19px}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1><span></span>경기과학기술대학교 교육장 미쓰비시 PLC 교육 신청</h1>
-  <p class="year" id="yr"></p>
 
+<!-- ===== 상단 로고 바 ===== -->
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logos">
+      <!-- 로고 파일이 없으면 자동으로 텍스트로 대체됩니다 -->
+      <img src="logo-mitsubishi.png" alt="MITSUBISHI ELECTRIC"
+           onerror="this.outerHTML='&lt;span class=\'logo-txt red\'&gt;MITSUBISHI ELECTRIC&lt;/span&gt;'">
+      <div class="logo-div"></div>
+      <img src="logo-gtec.png" alt="경기과학기술대학교"
+           onerror="this.outerHTML='&lt;span class=\'logo-txt\'&gt;경기과학기술대학교&lt;/span&gt;'">
+    </div>
+    <div class="topbar-r">
+      <b>미쓰비시PLC 위탁교육기관</b><br>
+      문의 <span id="tb-tel">-</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 페이지 타이틀 ===== -->
+<div class="hero">
+  <div class="hero-in">
+    <h1><span></span>경기과학기술대학교 교육장 미쓰비시 PLC 교육 신청</h1>
+    <p class="year" id="yr"></p>
+  </div>
+</div>
+
+<div class="wrap">
   <div class="legend">
     <div class="lg"><div class="sw" style="background:var(--wait)"></div>접수 대기</div>
     <div class="lg"><div class="sw" style="background:var(--open)"></div>신청 가능</div>
@@ -165,6 +213,8 @@
     · 정원이 마감되면 자동으로 신청이 종료됩니다.<br>
     · 신청 후 <b>접수확인 메일</b>이 발송되며, 담당자 검토 후 <b>확정 메일</b>이 별도 발송됩니다.<br>
     · 단체 신청 시 참석자 전원의 인적사항을 입력해 주십시오.
+    <div id="org" style="margin-top:14px;padding-top:12px;
+         border-top:1px solid var(--line2);color:#9aa3ad;font-size:11px"></div>
   </div>
 </div>
 
@@ -249,7 +299,7 @@
 
 <script>
 /* ★★★ Apps Script 웹앱 배포 URL 을 여기에 붙여넣으세요 ★★★ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbyDoDsmGNik2MJLu0LDSRxk39lZNb-5yoUu2LmangMwKm9dQJDFAqxBeHRuzhweJ9ha/exec';
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE';
 
 const $ = function(s){ return document.querySelector(s); };
 let cur = null, mode = 'single', PV = null;
@@ -260,9 +310,12 @@ async function load(){
     const r = await fetch(API_URL);
     const d = await r.json();
     if(!d.ok) throw new Error(d.msg);
-    $('#yr').textContent = '경기과학기술대학교 교육장 · ' + d.year + '년 정기교육 일정표';
+    $('#yr').textContent = d.year + '년 정기교육 일정표';
     PV = d.privacy;
     buildPrivacy();
+    $('#tb-tel').textContent = PV.tel;
+    $('#org').textContent =
+      PV.org + '  |  개인정보 보호책임자 ' + PV.manager + '  |  ' + PV.tel;
     render(d.courses);
   }catch(e){
     $('#list').innerHTML =
@@ -486,10 +539,19 @@ document.querySelectorAll('.tab').forEach(function(b){
   b.onclick = function(){ setMode(b.dataset.t); };
 });
 $('#add').onclick    = addMem;
-$('#cancel').onclick = close;
+$('#cancel').onclick = function(){
+  const dirty = ['#f-name','#f-company','#f-phone','#f-email','#f-memo']
+    .some(function(i){ return $(i).value.trim(); });
+  if(dirty && !confirm('입력하신 내용이 사라집니다. 취소하시겠습니까?')) return;
+  close();
+};
 $('#submit').onclick = submit;
-$('#ov').onclick     = function(e){ if(e.target.id === 'ov') close(); };
-document.onkeydown   = function(e){ if(e.key === 'Escape') close(); };
+/* 바깥 클릭으로는 닫지 않음 (입력 중 실수 방지) */
+document.onkeydown = function(e){
+  if(e.key === 'Escape' && $('#ov').classList.contains('on')){
+    if(confirm('입력하신 내용이 사라집니다. 창을 닫으시겠습니까?')) close();
+  }
+};
 
 $('#pv-h').onclick = function(){
   const b = $('#pv-b');
