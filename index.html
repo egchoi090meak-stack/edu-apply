@@ -8,11 +8,16 @@
   :root{
     --line:#d8dde3; --line2:#eef1f4; --text:#1f2933; --sub:#6b7684;
     --brand:#c8102e;
-    --wait:#f0f0f0;   --wait-t:#8a8a8a;
-    --open:#e3f2e8;   --open-t:#1b7a3f;
-    --close:#fde8ea;  --close-t:#b3273c;
-    --cancel:#e8e8e8; --cancel-t:#999;
-    --done:#f7f7f7;   --done-t:#bbb;
+    /* 접수 대기 — 아직 안 열림 (파랑) */
+    --wait:#e8f0fb;   --wait-t:#2b5fa8;   --wait-b:#4a83d4;
+    /* 신청 가능 (초록) */
+    --open:#dff3e6;   --open-t:#12703a;   --open-b:#1f9d55;
+    /* 마감 (빨강) */
+    --close:#fce4e7;  --close-t:#a81d33;  --close-b:#d63c56;
+    /* 폐강 (주황) */
+    --cancel:#fdecdc; --cancel-t:#a1541a; --cancel-b:#d97b2b;
+    /* 종료 (회색) */
+    --done:#eceff2;   --done-t:#7b8794;   --done-b:#a4aeb8;
   }
   *{box-sizing:border-box}
   body{margin:0;background:#f5f6f8;color:var(--text);
@@ -27,11 +32,6 @@
              gap:16px;flex-wrap:wrap}
   .logos{display:flex;align-items:center;gap:16px}
   .logos img{height:42px;width:auto;display:block}
-  .logo-div{width:1px;height:30px;background:var(--line)}
-  /* 이미지 없을 때 대체 텍스트 */
-  .logo-txt{font-weight:800;font-size:15px;letter-spacing:-.3px;
-            color:var(--text);white-space:nowrap}
-  .logo-txt.red{color:var(--brand)}
   .topbar-r{font-size:12px;color:var(--sub);text-align:right;line-height:1.7}
   .topbar-r b{color:var(--text);font-weight:600}
 
@@ -45,9 +45,13 @@
           margin-right:10px;vertical-align:-2px;border-radius:2px}
   .year{color:var(--sub);margin:0;font-size:13px}
 
-  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
-  .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
-  .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line)}
+  /* ===== 범례 ===== */
+  .legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+  .lg{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+      color:var(--text);background:#fff;border:1px solid var(--line);
+      border-radius:20px;padding:5px 12px 5px 8px}
+  .sw{width:16px;height:16px;border-radius:4px;flex-shrink:0;
+      border-left:3px solid}
 
   .course{background:#fff;border:1px solid var(--line);border-radius:8px;
           margin-bottom:16px;overflow:hidden}
@@ -84,27 +88,38 @@
   .day-t{font-weight:600;font-size:13.5px;margin-bottom:3px}
   .day-b{font-size:12.5px;color:var(--sub);line-height:1.6}
 
+  /* ===== 12개월 그리드 ===== */
   .grid{display:grid;grid-template-columns:repeat(12,1fr);
         border-top:1px solid var(--line2)}
   .mh{padding:7px 2px;text-align:center;font-size:11px;color:var(--sub);
       background:#fafbfc;border-right:1px solid var(--line2);font-weight:600}
   .mh:last-child{border-right:0}
-  .mc{min-height:56px;padding:6px 3px;border-right:1px solid var(--line2);
+  .mc{min-height:58px;padding:6px 3px;border-right:1px solid var(--line2);
       border-top:1px solid var(--line2);display:flex;flex-direction:column;
       align-items:center;justify-content:center;gap:3px}
   .mc:last-child{border-right:0}
+  .mc.has-open{background:#f4fbf7}
 
-  .pill{width:100%;border:0;border-radius:4px;padding:5px 2px;font-size:11px;
-        font-weight:600;cursor:default;font-family:inherit;line-height:1.3}
-  .pill .rm{display:block;font-size:9px;font-weight:400;opacity:.85;margin-top:1px}
-  .st-대기  {background:var(--wait);  color:var(--wait-t)}
-  .st-접수중{background:var(--open);  color:var(--open-t);cursor:pointer}
-  .st-접수중:hover{background:#cfe9d9}
-  .st-마감  {background:var(--close); color:var(--close-t)}
+  .pill{width:100%;border:0;border-left:3px solid transparent;border-radius:4px;
+        padding:6px 3px;font-size:11.5px;font-weight:700;cursor:default;
+        font-family:inherit;line-height:1.3}
+  .pill .rm{display:block;font-size:9.5px;font-weight:600;opacity:.9;margin-top:2px}
+
+  .st-대기  {background:var(--wait);  color:var(--wait-t);
+             border-left-color:var(--wait-b)}
+  .st-접수중{background:var(--open);  color:var(--open-t);
+             border-left-color:var(--open-b);cursor:pointer;
+             box-shadow:0 1px 3px rgba(31,157,85,.18)}
+  .st-접수중:hover{background:#cbead9;
+             box-shadow:0 2px 7px rgba(31,157,85,.3)}
+  .st-마감  {background:var(--close); color:var(--close-t);
+             border-left-color:var(--close-b)}
   .st-폐강  {background:var(--cancel);color:var(--cancel-t);
-             text-decoration:line-through}
-  .st-종료  {background:var(--done);  color:var(--done-t)}
+             border-left-color:var(--cancel-b);text-decoration:line-through}
+  .st-종료  {background:var(--done);  color:var(--done-t);
+             border-left-color:var(--done-b)}
 
+  /* ===== 모달 ===== */
   .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;
       align-items:flex-start;justify-content:center;padding:24px 12px;
       overflow-y:auto;z-index:50}
@@ -162,7 +177,6 @@
   .chk{display:flex;align-items:flex-start;gap:8px;cursor:pointer;
        font-size:12.5px;font-weight:600;margin:0}
   .chk input{width:auto;margin:2px 0 0;flex-shrink:0}
-  .chk.no{color:var(--brand)}
 
   .hp{position:absolute!important;left:-9999px!important;opacity:0!important;
       height:0!important;width:0!important}
@@ -200,10 +214,10 @@
 <div class="topbar">
   <div class="topbar-in">
     <div class="logos">
-      <!-- 로고 파일이 없으면 자동으로 텍스트로 대체됩니다 -->
-      <div class="logo-div"></div>
-      <img src="logo-gtec.png" alt="경기과학기술대학교"
-           onerror="this.outerHTML='&lt;span class=\'logo-txt\'&gt;경기과학기술대학교&lt;/span&gt;'">
+      <!-- 로고 파일(logo-mitsubishi.png / logo-gtec.png)을 GitHub에 업로드하면
+           자동으로 표시됩니다. 파일이 없으면 아무것도 보이지 않습니다. -->
+      <img src="logo-mitsubishi.png" alt="" onerror="this.style.display='none'">
+      <img src="logo-gtec.png" alt="" onerror="this.style.display='none'">
     </div>
     <div class="topbar-r">
       <b>미쓰비시PLC 위탁교육기관</b><br>
@@ -222,11 +236,16 @@
 
 <div class="wrap">
   <div class="legend">
-    <div class="lg"><div class="sw" style="background:var(--wait)"></div>접수 대기</div>
-    <div class="lg"><div class="sw" style="background:var(--open)"></div>신청 가능</div>
-    <div class="lg"><div class="sw" style="background:var(--close)"></div>마감</div>
-    <div class="lg"><div class="sw" style="background:var(--cancel)"></div>폐강</div>
-    <div class="lg"><div class="sw" style="background:var(--done)"></div>종료</div>
+    <div class="lg"><div class="sw"
+      style="background:var(--wait);border-left-color:var(--wait-b)"></div>접수 대기</div>
+    <div class="lg"><div class="sw"
+      style="background:var(--open);border-left-color:var(--open-b)"></div>신청 가능</div>
+    <div class="lg"><div class="sw"
+      style="background:var(--close);border-left-color:var(--close-b)"></div>마감</div>
+    <div class="lg"><div class="sw"
+      style="background:var(--cancel);border-left-color:var(--cancel-b)"></div>폐강</div>
+    <div class="lg"><div class="sw"
+      style="background:var(--done);border-left-color:var(--done-b)"></div>종료</div>
   </div>
 
   <div id="list"><div class="load">교육 일정을 불러오는 중…</div></div>
@@ -321,7 +340,7 @@
 </div>
 
 <script>
-/* ★★★ Apps Script 웹앱 배포 URL 을 여기에 붙여넣으세요 ★★★ */
+/* ★★★ Apps Script 웹앱 배포 URL ★★★ */
 const API_URL = 'https://script.google.com/macros/s/AKfycbyDoDsmGNik2MJLu0LDSRxk39lZNb-5yoUu2LmangMwKm9dQJDFAqxBeHRuzhweJ9ha/exec';
 
 const $ = function(s){ return document.querySelector(s); };
@@ -388,8 +407,8 @@ function render(courses){
     let mh = '';
     for(let i=1;i<=12;i++) mh += '<div class="mh">' + i + '월</div>';
 
-    const cur  = c.curriculum || [];
-    const has  = cur.length > 0;
+    const curr = c.curriculum || [];
+    const has  = curr.length > 0;
 
     // 커리큘럼 내용
     let curHtml = '';
@@ -397,7 +416,7 @@ function render(courses){
       curHtml =
         '<div class="cur-in">' +
           '<div class="cur-h">교육 커리큘럼</div>' +
-          cur.map(function(d){
+          curr.map(function(d){
             return '<div class="day">' +
                      '<div class="day-n">' + d.day + '일차</div>' +
                      '<div>' +
@@ -459,7 +478,11 @@ function render(courses){
         b.innerHTML = (s.status === '접수중')
           ? label + '<span class="rm">잔여 ' + s.remain + '석</span>'
           : label + '<span class="rm">' + s.status + '</span>';
-        if(s.status === '접수중') b.onclick = function(){ open(c, s); };
+        if(s.status === '접수중'){
+          b.onclick = function(){ open(c, s); };
+          b.title = '클릭하여 신청';
+          box.classList.add('has-open');
+        }
         box.appendChild(b);
       });
       cells.appendChild(box);
@@ -618,6 +641,7 @@ $('#cancel').onclick = function(){
   close();
 };
 $('#submit').onclick = submit;
+
 /* 바깥 클릭으로는 닫지 않음 (입력 중 실수 방지) */
 document.onkeydown = function(e){
   if(e.key === 'Escape' && $('#ov').classList.contains('on')){
